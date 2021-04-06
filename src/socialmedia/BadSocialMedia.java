@@ -1,5 +1,6 @@
 package socialmedia;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -11,10 +12,28 @@ import java.io.IOException;
  */
 public class BadSocialMedia implements SocialMediaPlatform {
 
+
 	@Override
 	public int createAccount(String handle) throws IllegalHandleException, InvalidHandleException {
-		// TODO Auto-generated method stub
-		return 0;
+		File myObj = new File("users.csv");
+
+		if (handle.isEmpty()) {
+			throw new IllegalHandleException("Handle can't be empty");
+		}
+		else if (handle.length() > 30) {
+			throw new IllegalHandleException("Handle can't be more than 30 characters");
+		}
+		else if (handle.contains(" ")) {
+			throw new IllegalHandleException("Handle can't have white spaces");
+		}
+		else if() {
+
+		}
+		else {
+			return userID;
+		}
+
+
 	}
 
 	@Override
