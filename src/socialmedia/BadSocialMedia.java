@@ -10,7 +10,7 @@ import java.io.IOException;
  * @version 1.0
  */
 public class BadSocialMedia implements SocialMediaPlatform {
-
+	
 	@Override
 	public int createAccount(String handle) throws IllegalHandleException, InvalidHandleException {
 		// TODO Auto-generated method stub
@@ -19,6 +19,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public int createAccount(String handle, String description) throws IllegalHandleException, InvalidHandleException {
+		BadSocialMedia account = new BadSocialMedia(); //No idea at all...
 		// TODO Auto-generated method stub
 		return 0;
 	}
