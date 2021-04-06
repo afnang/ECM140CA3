@@ -19,7 +19,7 @@ public interface MiniSocialMediaPlatform extends Serializable {
 
 	/**
 	 * The method creates an account in the platform with the given handle.
-	 * <p>
+	 * <p> test
 	 * The state of this SocialMediaPlatform must be be unchanged if any exceptions
 	 * are thrown.
 	 * 
