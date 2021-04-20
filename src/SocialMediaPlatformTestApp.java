@@ -15,7 +15,6 @@ import socialmedia.SocialMediaPlatform;
  * @version 1.0
  */
 public class SocialMediaPlatformTestApp {
-
 	/**
 	 * Test method.
 	 * 

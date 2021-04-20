@@ -9,6 +9,7 @@ public class Post {
 	String message;
 	boolean Exists;
 
+	
 	public boolean isExists() {
 		return Exists;
 	}
