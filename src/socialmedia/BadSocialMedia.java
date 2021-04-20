@@ -17,13 +17,13 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	ArrayList<Account> accounts = new ArrayList<Account>();
 	ArrayList<Post> posts = new ArrayList<Post>();
 
-	private int findAccountByHandle(String handle) {
+	private Account findAccountByHandle(String handle) {
 		for (Account account : accounts) {
 			if (account.Handle.equals(handle)) {
-				return account.id;
+				return account;
 			}
 		}
-		return 0;
+		return null;
 	}
 
 	private Account findAccountById(int id) throws AccountIDNotRecognisedException {
@@ -41,7 +41,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 		if (handle.length() > 30 || handle.contains(" ")) {
 			throw new InvalidHandleException("Handle must be under 30 characters, cannot contain whitespace");
 		}
-		if (findAccountByHandle(handle) != 0) {
+		if (findAccountByHandle(handle) != null) {
 			throw new IllegalHandleException("Handle already exists on the platform.");
 		} else {
 			Account account = new Account();
@@ -92,18 +92,26 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	@Override
 	public void changeAccountHandle(String oldHandle, String newHandle)
 			throws HandleNotRecognisedException, IllegalHandleException, InvalidHandleException {
+		try {
+			findAccountByHandle(oldHandle).Handle = newHandle;
+		} catch (Exception e) {
+			throw new HandleNotRecognisedException("Handle not recognised.");
+			// TODO: handle exception
+		} 
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void updateAccountDescription(String handle, String description) throws HandleNotRecognisedException {
+		findAccountByHandle(handle).Description = description;
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public String showAccount(String handle) throws HandleNotRecognisedException {
+		//return findAccountByHandle(handle); It should return a formatted sum of a user.
 		// TODO Auto-generated method stub
 		return null;
 	}
