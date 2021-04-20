@@ -1,7 +1,7 @@
 package socialmedia;
 
-import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * BadSocialMedia is a minimally compiling, but non-functioning implementor of
@@ -11,45 +11,80 @@ import java.io.IOException;
  * @version 1.0
  */
 public class BadSocialMedia implements SocialMediaPlatform {
+	int accountId = 1;
+	int postId = 1;
 
+	ArrayList<Account> accounts = new ArrayList<Account>();
+	ArrayList<Post> posts = new ArrayList<Post>();
+
+	private Account findAccountByHandle(String handle) {
+		for (Account account : accounts) {
+			if (account.Handle.equals(handle)) {
+				return account;
+			}
+		}
+		return null;
+	}
+
+	private Account findAccountById(int id) throws AccountIDNotRecognisedException {
+		for (Account account : accounts) {
+			if (account.id == id) {
+				return account;
+			}
+		}
+		throw new AccountIDNotRecognisedException("ID not recognised.");
+	}
 
 	@Override
 	public int createAccount(String handle) throws IllegalHandleException, InvalidHandleException {
-		File myObj = new File("users.csv");
 
-		if (handle.isEmpty()) {
-			throw new IllegalHandleException("Handle can't be empty");
+		if (handle.length() > 30 || handle.contains(" ")) {
+			throw new InvalidHandleException("Handle must be under 30 characters, cannot contain whitespace");
 		}
-		else if (handle.length() > 30) {
-			throw new IllegalHandleException("Handle can't be more than 30 characters");
-		}
-		else if (handle.contains(" ")) {
-			throw new IllegalHandleException("Handle can't have white spaces");
-		}
-		else if() {
+		if (findAccountByHandle(handle) != null) {
+			throw new IllegalHandleException("Handle already exists on the platform.");
+		} else {
+			Account account = new Account();
+			account.id = accountId;
+			account.Handle = handle;
+			accounts.add(account);
+			accountId++;
 
+			return account.id;
 		}
-		else {
-			return userID;
-		}
-
-
 	}
 
 	@Override
 	public int createAccount(String handle, String description) throws IllegalHandleException, InvalidHandleException {
+		Account account = new Account();
 		// TODO Auto-generated method stub
+		account.id = accountId;
+		account.Handle = handle;
+		account.Description = description;
+		accounts.add(account);
+		accountId++;
+
 		return 0;
 	}
 
 	@Override
 	public void removeAccount(int id) throws AccountIDNotRecognisedException {
-		// TODO Auto-generated method stub
+		try {
+			accounts.remove(findAccountById(id));
+		} catch (Exception e) {
+
+			// TODO: handle exception
+		}
 
 	}
 
 	@Override
 	public void removeAccount(String handle) throws HandleNotRecognisedException {
+		for (Account account : accounts) {
+			if (account.Handle == handle) {
+				accounts.remove(account);
+			}
+		}
 		// TODO Auto-generated method stub
 
 	}
@@ -57,18 +92,26 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	@Override
 	public void changeAccountHandle(String oldHandle, String newHandle)
 			throws HandleNotRecognisedException, IllegalHandleException, InvalidHandleException {
+		try {
+			findAccountByHandle(oldHandle).Handle = newHandle;
+		} catch (Exception e) {
+			throw new HandleNotRecognisedException("Handle not recognised.");
+			// TODO: handle exception
+		} 
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void updateAccountDescription(String handle, String description) throws HandleNotRecognisedException {
+		findAccountByHandle(handle).Description = description;
 		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public String showAccount(String handle) throws HandleNotRecognisedException {
+		//return findAccountByHandle(handle); It should return a formatted sum of a user.
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -76,6 +119,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	@Override
 	public int createPost(String handle, String message) throws HandleNotRecognisedException, InvalidPostException {
 		// TODO Auto-generated method stub
+		postId++;
 		return 0;
 	}
 
@@ -90,6 +134,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	public int commentPost(String handle, int id, String message) throws HandleNotRecognisedException,
 			PostIDNotRecognisedException, NotActionablePostException, InvalidPostException {
 		// TODO Auto-generated method stub
+		postId++;
 		return 0;
 	}
 
@@ -114,8 +159,9 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public int getNumberOfAccounts() {
+
 		// TODO Auto-generated method stub
-		return 0;
+		return accounts.size();
 	}
 
 	@Override
