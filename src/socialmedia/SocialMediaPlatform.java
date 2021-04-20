@@ -6,7 +6,7 @@ package socialmedia;
  * implementing this interface should initialise the SocialMediaPlatform as an
  * empty platform with no initial accounts nor posts within it. For Pair
  * submissions.
- * bsdfa
+ * 
  * @author Diogo Pacheco
  * @version 1.0
  *
@@ -38,7 +38,7 @@ public interface SocialMediaPlatform extends MiniSocialMediaPlatform {
 	 * <p>
 	 * The state of this SocialMediaPlatform must be be unchanged if any exceptions
 	 * are thrown.
-	 * sdafdsfasddfas
+	 * 
 	 * @param handle account's handle.
 	 * @throws HandleNotRecognisedException if the handle does not match to any
 	 *                                      account in the system.
