@@ -7,15 +7,19 @@ public class Post {
 	int comments;
 	Account account;
 	String message;
-	boolean Exists;
+	boolean exists;
+	boolean endorsedPost;
 
-	
+	public boolean isEndorsedPost() { return endorsedPost; }
+
+	public void setEndorsedPost(boolean endorsedPost) { this.endorsedPost = endorsedPost; }
+
 	public boolean isExists() {
-		return Exists;
+		return exists;
 	}
 
 	public void setExists(boolean exists) {
-		Exists = exists;
+		exists = exists;
 	}
 
 	public int getId() {
