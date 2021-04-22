@@ -11,7 +11,6 @@ import java.util.ArrayList;
  * @version 1.0
  */
 public class BadSocialMedia implements SocialMediaPlatform {
-<<<<<<< Upstream, based on branch 'master' of https://github.com/afnang/ECM140CA3
 	int accountId = 1;
 	int postId = 1;
 
@@ -36,9 +35,6 @@ public class BadSocialMedia implements SocialMediaPlatform {
 		throw new AccountIDNotRecognisedException("ID not recognised.");
 	}
 
-=======
-	
->>>>>>> e60513f Does it work, can I push?
 	@Override
 	public int createAccount(String handle) throws IllegalHandleException, InvalidHandleException {
 
@@ -60,11 +56,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public int createAccount(String handle, String description) throws IllegalHandleException, InvalidHandleException {
-<<<<<<< Upstream, based on branch 'master' of https://github.com/afnang/ECM140CA3
 		Account account = new Account();
-=======
-		BadSocialMedia account = new BadSocialMedia(); //No idea at all...
->>>>>>> e60513f Does it work, can I push?
 		// TODO Auto-generated method stub
 		account.id = accountId;
 		account.Handle = handle;
@@ -93,7 +85,6 @@ public class BadSocialMedia implements SocialMediaPlatform {
 		}
 	}
 
-
 	@Override
 	public void changeAccountHandle(String oldHandle, String newHandle)
 			throws HandleNotRecognisedException, IllegalHandleException, InvalidHandleException {
@@ -102,7 +93,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 		} catch (Exception HandleNotRecognisedException) {
 			System.out.println("Handle not recognised.");
 			// TODO: handle exception
-		} 
+		}
 		// TODO Auto-generated method stub
 
 	}
@@ -116,35 +107,35 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public String showAccount(String handle) throws HandleNotRecognisedException {
-		//return findAccountByHandle(handle); It should return a formatted sum of a user.
+		// return findAccountByHandle(handle); It should return a formatted sum of a
+		// user.
 		Account accountToShow = findAccountByHandle(handle);
 		int postCount = 0;
 		int endorsementCount = 0;
-		for (Post p:posts) {
-			if (p.getAccount().equals(accountToShow)){
+		for (Post p : posts) {
+			if (p.getAccount().equals(accountToShow)) {
 				postCount++;
 				endorsementCount = p.getEndorsements() + endorsementCount;
 			}
 
 		}
-
+		// This method should create a formatted string, doesn't have to print them
 		System.out.println("ID:" + accountToShow.getId());
-		System.out.println("Handle:"+ accountToShow.getHandle());
-		System.out.println("Description:"+ accountToShow.getDescription());
-		System.out.println("Post Count:"+ postCount);
-		System.out.println("Endorse Count:"+ endorsementCount);
+		System.out.println("Handle:" + accountToShow.getHandle());
+		System.out.println("Description:" + accountToShow.getDescription());
+		System.out.println("Post Count:" + postCount);
+		System.out.println("Endorse Count:" + endorsementCount);
 		return null;
 	}
 
 	@Override
 	public int createPost(String handle, String message) throws HandleNotRecognisedException, InvalidPostException {
-		if (findAccountByHandle(handle) == null){
+		if (findAccountByHandle(handle) == null) {
 			throw new HandleNotRecognisedException("Handle not found in platform, Please try again");
 		}
-		if (message.isEmpty() || message.length() > 100){
+		if (message.isEmpty() || message.length() > 100) {
 			throw new InvalidPostException("Message was greater than 100 characters or empty");
-		}
-		else {
+		} else {
 			Post post = new Post();
 			post.id = postId;
 			post.account = findAccountByHandle(handle);
@@ -155,7 +146,6 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			return post.getId();
 		}
 
-
 	}
 
 	@Override
@@ -163,17 +153,15 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			throws HandleNotRecognisedException, PostIDNotRecognisedException, NotActionablePostException {
 		if (findAccountByHandle(handle) == null) {
 			throw new HandleNotRecognisedException("Handle not found in platform, Please try again");
-		}
-		else {
-			for (Post p:posts) {
-				if (p.getId() == id){
-					if (p.isEndorsedPost()){
-						if (p.getAccount().equals(findAccountByHandle(handle))){
+		} else {
+			for (Post p : posts) {
+				if (p.getId() == id) {
+					if (p.isEndorsedPost()) {
+						if (p.getAccount().equals(findAccountByHandle(handle))) {
 							throw new NotActionablePostException("Cannot endorse the same post twice");
 						}
 						throw new NotActionablePostException("Can't endorse another endorsed post");
-					}
-					else {
+					} else {
 						System.out.println("EP@" + p.account.getHandle() + ": " + p.getMessage());
 						Post post = new Post();
 						post.id = postId;
@@ -182,11 +170,12 @@ public class BadSocialMedia implements SocialMediaPlatform {
 						post.message = p.getMessage();
 						post.endorsedPost = true;
 						posts.add(post);
+						p.endorsements++;
+						p.getAccount().endorsements++;
 						postId++;
 						return post.getId();
 					}
-				}
-				else {
+				} else {
 					throw new PostIDNotRecognisedException("Post ID not found in the platform");
 				}
 
@@ -203,15 +192,14 @@ public class BadSocialMedia implements SocialMediaPlatform {
 		if (message.length() > 100 || message.isEmpty()) {
 			throw new InvalidPostException("Message cannot be empty or greater than 100 characters");
 		}
-		if (findAccountByHandle(handle) == null){
+		if (findAccountByHandle(handle) == null) {
 			throw new HandleNotRecognisedException("Handle not found in the platform");
-		}
-		else {
-			for (Post p:posts) {
-				if (p.isEndorsedPost()){
+		} else {
+			for (Post p : posts) {
+				if (p.isEndorsedPost()) {
 					throw new NotActionablePostException("Can't comment on an endorsed post");
 				}
-				if (p.getId() == id){
+				if (p.getId() == id) {
 					Post post = new Post();
 					post.id = postId;
 					post.parentId = p.getId();
@@ -221,8 +209,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 					posts.add(post);
 					postId++;
 					return post.getId();
-				}
-				else {
+				} else {
 					throw new PostIDNotRecognisedException("Post ID not found in the platform");
 				}
 			}
@@ -233,6 +220,11 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public void deletePost(int id) throws PostIDNotRecognisedException {
+		for (Post post : posts) {
+			if (post.id == id) {
+				posts.remove(post);
+			}
+		}
 		// TODO Auto-generated method stub
 
 	}
@@ -245,6 +237,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public StringBuilder showPostChildrenDetails(int id)
+	//Looks like the most difficult method.
 			throws PostIDNotRecognisedException, NotActionablePostException {
 		// TODO Auto-generated method stub
 		return null;
@@ -252,44 +245,84 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public int getNumberOfAccounts() {
-
-		// TODO Auto-generated method stub
 		return accounts.size();
 	}
 
 	@Override
 	public int getTotalOriginalPosts() {
+		int originalPosts = 0;
+		for (Post post : posts) {
+			if (post.endorsedPost || post.parentId > 0) {
+				continue;
+			} else {
+				originalPosts++;
+			}
 
-		return posts.size();
+		}
+		return originalPosts;
+
 	}
 
 	@Override
 	public int getTotalEndorsmentPosts() {
-		// TODO Auto-generated method stub
-		return 0;
+		int endorsementPosts = 0;
+		for (Post post : posts) {
+			if (post.endorsedPost) {
+				endorsementPosts++;
+			} else {
+				continue;
+			}
+		}
+		return endorsementPosts;
 	}
 
 	@Override
 	public int getTotalCommentPosts() {
-		// TODO Auto-generated method stub
-		return 0;
+		int commentPosts = 0;
+		for (Post post : posts) {
+			if (post.parentId > 0) {
+				commentPosts++;
+			} else {
+				continue;
+			}
+
+		}
+		return commentPosts;
 	}
 
 	@Override
 	public int getMostEndorsedPost() {
-		// TODO Auto-generated method stub
-		return 0;
+		Post mostEndorsedPost = new Post();
+		mostEndorsedPost.endorsements = 0;
+		for (Post post : posts) {
+			if (post.endorsements>mostEndorsedPost.endorsements) {
+				mostEndorsedPost = post;
+			} else {
+				continue;
+			}
+		}
+		return mostEndorsedPost.id;
 	}
 
 	@Override
 	public int getMostEndorsedAccount() {
+		int mostEndorsedAccountId = 0;
+		for (Account account : accounts) {
+			if (account.endorsements>mostEndorsedAccountId) {
+				mostEndorsedAccountId = account.getId();
+			}
+		}
 		// TODO Auto-generated method stub
-		return 0;
+		return mostEndorsedAccountId;
 	}
 
 	@Override
 	public void erasePlatform() {
-		// TODO Auto-generated method stub
+		accountId = 1;
+		postId = 1;
+		accounts.clear();
+		posts.clear();
+		// TODO Should we reset all the variables created in methods?
 
 	}
 
