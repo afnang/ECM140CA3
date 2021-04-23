@@ -155,9 +155,13 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			throw new HandleNotRecognisedException("Handle not found in platform, Please try again");
 		} else {
 			for (Post p : posts) {
+				//if (p.getAccount().getHandle()==handle&& p.parentId==id&&p.endorsedPost)
+				//I think we should add the line above, it needs all conditions to be true if it's gonna throw an exception.
 				if (p.getId() == id) {
+					
+					
 					if (p.isEndorsedPost()) {
-						if (p.getAccount().equals(findAccountByHandle(handle))) {
+						if (p.getAccount().equals(findAccountByHandle(handle))) { //What does it check?
 							throw new NotActionablePostException("Cannot endorse the same post twice");
 						}
 						throw new NotActionablePostException("Can't endorse another endorsed post");
@@ -171,7 +175,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 						post.endorsedPost = true;
 						posts.add(post);
 						p.endorsements++;
-						p.getAccount().endorsements++;
+						p.getAccount().endorsementCount++;
 						postId++;
 						return post.getId();
 					}
@@ -280,7 +284,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	public int getTotalCommentPosts() {
 		int commentPosts = 0;
 		for (Post post : posts) {
-			if (post.parentId > 0) {
+			if (post.parentId > 0 &&post.endorsedPost!=true) {
 				commentPosts++;
 			} else {
 				continue;
@@ -308,7 +312,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	public int getMostEndorsedAccount() {
 		int mostEndorsedAccountId = 0;
 		for (Account account : accounts) {
-			if (account.endorsements>mostEndorsedAccountId) {
+			if (account.endorsementCount>mostEndorsedAccountId) {
 				mostEndorsedAccountId = account.getId();
 			}
 		}
