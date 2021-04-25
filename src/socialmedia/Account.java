@@ -1,13 +1,12 @@
 package socialmedia;
 
 import java.util.ArrayList;
-
 public class Account {
-
 	int id;
 	String Handle;
 	String Description;
 	boolean Exists;
+	int endorsementCount;
 	public boolean isExists() {
 		return Exists;
 	}
