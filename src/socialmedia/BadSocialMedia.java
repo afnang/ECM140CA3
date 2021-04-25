@@ -2,6 +2,8 @@ package socialmedia;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.IllegalFormatCodePointException;
+
 
 /**
  * BadSocialMedia is a minimally compiling, but non-functioning implementor of
@@ -83,7 +85,26 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public void removeAccount(String handle) throws HandleNotRecognisedException {
+		for (Post p:posts){
+			if (p.getAccount().equals(handle)){
+				try {
+					if (p.isEndorsedPost()) {
+						for (Post post: posts)  {
+							if (post.getId() == p.getParentId()) {
+								post.endorsements--;
+							}
+						}
+					}
+					deletePost(p.getId());
+				} catch (PostIDNotRecognisedException e) {
+					e.printStackTrace();
+				}
+
+
+			}
+		}
 		accounts.removeIf(account -> account.Handle == handle);
+
 	}
 
 	@Override
@@ -142,6 +163,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			post.account = findAccountByHandle(handle);
 			post.message = message;
 			post.endorsedPost = false;
+			post.exists = true;
 			posts.add(post);
 			postId++;
 			return post.getId();
@@ -152,42 +174,50 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	@Override
 	public int endorsePost(String handle, int id)
 			throws HandleNotRecognisedException, PostIDNotRecognisedException, NotActionablePostException {
+
 		if (findAccountByHandle(handle) == null) {
 			throw new HandleNotRecognisedException("Handle not found in platform, Please try again");
 		} else {
 			for (Post p : posts) {
-				//if (p.getAccount().getHandle()==handle&& p.parentId==id&&p.endorsedPost)
-				//I think we should add the line above, it needs all conditions to be true if it's gonna throw an exception.
+				// if (p.getAccount().getHandle()==handle&& p.parentId==id&&p.endorsedPost)
+				// I think we should add the line above, it needs all conditions to be true if
+				// it's gonna throw an exception.
 				if (p.getId() == id) {
-					
-					
-					if (p.isEndorsedPost()) {
-						if (p.getAccount().equals(findAccountByHandle(handle))) { //What does it check?
-							throw new NotActionablePostException("Cannot endorse the same post twice");
-						}
-						throw new NotActionablePostException("Can't endorse another endorsed post");
-					} else {
-						String endorsedPost = "EP@" + p.account.getHandle() + ": " + p.getMessage();
-						Post post = new Post();
-						post.id = postId;
-						post.parentId = p.getId();
-						post.account = findAccountByHandle(handle);
-						post.message = endorsedPost;
-						post.endorsedPost = true;
-						posts.add(post);
-						p.endorsements++;
-						p.getAccount().endorsementCount++;
-						postId++;
-						return post.getId();
+					if (p.account.getHandle().equals(handle) && p.parentId == id){
+						throw new NotActionablePostException("Can't endorse same post twice");
+
 					}
-				} else {
-					throw new PostIDNotRecognisedException("Post ID not found in the platform");
+					if (p.getParentId() != 0) {
+
+						if (p.isEndorsedPost()) {
+							throw new NotActionablePostException("Can't endorse another endorsed post");
+						}
+						throw new NotActionablePostException("Cannot endorse a comment.");
+					}
+					if (!p.isExists()) {
+						throw new NotActionablePostException("Post has been deleted, cannot comment");
+					}
+
+					String endorsedPost = "EP@" + p.account.getHandle() + ": " + p.getMessage();
+					Post post = new Post();
+					post.id = postId;
+					post.parentId = p.getId();
+					post.account = findAccountByHandle(handle);
+					post.message = endorsedPost;
+					post.endorsedPost = true;
+					post.exists = true;
+					posts.add(post);
+					p.endorsements++;
+					p.getAccount().endorsementCount++;
+					postId++;
+					return post.getId();
+
+
 				}
 
 			}
-
+			throw new PostIDNotRecognisedException("Post ID not found in the platform");
 		}
-		return 0;
 	}
 
 	@Override
@@ -204,6 +234,9 @@ public class BadSocialMedia implements SocialMediaPlatform {
 					if (p.isEndorsedPost()) {
 						throw new NotActionablePostException("Can't comment on an endorsed post");
 					}
+					if (!p.isExists()) {
+						throw new NotActionablePostException("Post has been deleted, cannot comment");
+					}
 					p.comments++;
 					Post post = new Post();
 					post.id = postId;
@@ -211,9 +244,9 @@ public class BadSocialMedia implements SocialMediaPlatform {
 					post.account = findAccountByHandle(handle);
 					post.message = message;
 					post.endorsedPost = false;
+					post.exists = true;
 					posts.add(post);
 					postId++;
-					System.out.println(post.getId());
 					return post.getId();
 				}
 			}
@@ -224,8 +257,26 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public void deletePost(int id) throws PostIDNotRecognisedException {
-		posts.removeIf(post -> post.id == id);
-		// TODO Auto-generated method stub
+		int counter = 0;
+		for (Post p: posts){
+			if (p.getParentId() == id) {
+				counter++;
+			}
+			if (counter == 0){
+				posts.remove(p);
+			}
+			if (p.getId() == id){
+
+				p.setMessage("The original content was removed from the system and is no longer available.");
+				p.setAccount(null);
+				p.setEndorsements(0);
+				p.setExists(false);
+			}
+
+
+		}
+		System.out.println("Post successfully deleted");
+
 
 	}
 
@@ -342,13 +393,16 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public void savePlatform(String filename) throws IOException {
+		if (!filename.endsWith(".ser")){
+			filename = filename.concat(".ser");
+		}
 		try {
 			FileOutputStream fos = new FileOutputStream(filename);
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
-			oos.writeObject(accounts); // write MenuArray to ObjectOutputStream
+			oos.writeObject(accounts);
 			oos.close();
-		} catch(Exception ex) {
-			ex.printStackTrace();
+		} catch(IOException e) {
+			e.printStackTrace();
 		}
 
 
@@ -356,6 +410,21 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public void loadPlatform(String filename) throws IOException, ClassNotFoundException {
+		if (!filename.endsWith(".ser")){
+			filename = filename.concat(".ser");
+		}
+		try{
+			FileInputStream readData = new FileInputStream(filename);
+			ObjectInputStream readStream = new ObjectInputStream(readData);
+
+			ArrayList<Account> accounts1 = (ArrayList<Account>) readStream.readObject();
+			readStream.close();
+			for (Account a:accounts1){
+				System.out.println(a.getHandle());
+			}
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
 
 	}
 
