@@ -8,6 +8,8 @@ import socialmedia.NotActionablePostException;
 import socialmedia.PostIDNotRecognisedException;
 import socialmedia.SocialMediaPlatform;
 
+import java.io.IOException;
+
 /**
  * A short program to illustrate an app testing some minimal functionality of a
  * concrete implementation of the SocialMediaPlatform interface -- note you will
@@ -54,11 +56,10 @@ public class SocialMediaPlatformTestApp {
 			platform.endorsePost("diogo", 1); //Must create an error.
 			platform.commentPost("obama", 1, "Yes we can");
 			platform.commentPost("obama", 1, "Yes we can again");
-			platform.commentPost("obama",6,"commenting on my post");
+			platform.commentPost("diogo",6,"turd");
 
 
-
-			System.out.println(platform.showPostChildrenDetails(1));
+			platform.getTotalCommentPosts();
 
 
 
@@ -70,16 +71,7 @@ public class SocialMediaPlatformTestApp {
 			e.printStackTrace();
 			assert (false) : "InvalidHandleException thrown incorrectly";
 
-		} catch (HandleNotRecognisedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvalidPostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (PostIDNotRecognisedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NotActionablePostException e) {
+		} catch (HandleNotRecognisedException | PostIDNotRecognisedException | InvalidPostException | NotActionablePostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
