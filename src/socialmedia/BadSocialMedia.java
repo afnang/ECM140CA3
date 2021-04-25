@@ -1,6 +1,6 @@
 package socialmedia;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 
 /**
@@ -200,10 +200,10 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			throw new HandleNotRecognisedException("Handle not found in the platform");
 		} else {
 			for (Post p : posts) {
-				if (p.isEndorsedPost()) {
-					throw new NotActionablePostException("Can't comment on an endorsed post");
-				}
 				if (p.getId() == id) {
+					if (p.isEndorsedPost()) {
+						throw new NotActionablePostException("Can't comment on an endorsed post");
+					}
 					p.comments++;
 					Post post = new Post();
 					post.id = postId;
@@ -213,14 +213,13 @@ public class BadSocialMedia implements SocialMediaPlatform {
 					post.endorsedPost = false;
 					posts.add(post);
 					postId++;
+					System.out.println(post.getId());
 					return post.getId();
-				} else {
-					throw new PostIDNotRecognisedException("Post ID not found in the platform");
 				}
 			}
+			throw new PostIDNotRecognisedException("Post ID not found in the platform");
 		}
 
-		return 0;
 	}
 
 	@Override
@@ -262,18 +261,8 @@ public class BadSocialMedia implements SocialMediaPlatform {
 				sb.append("\n|");
 				sb.append("\n| > ");
 				sb.append(indent);
-
-
-
-
 			}
-
-
-
 		}
-
-
-
 		return sb;
 	}
 
@@ -353,14 +342,22 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public void savePlatform(String filename) throws IOException {
-		// TODO Auto-generated method stub
+		try {
+			FileOutputStream fos = new FileOutputStream(filename);
+			ObjectOutputStream oos = new ObjectOutputStream(fos);
+			oos.writeObject(accounts); // write MenuArray to ObjectOutputStream
+			oos.close();
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+
 
 	}
 
 	@Override
 	public void loadPlatform(String filename) throws IOException, ClassNotFoundException {
-		// TODO Auto-generated method stub
 
 	}
+
 
 }
