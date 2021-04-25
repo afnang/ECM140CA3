@@ -10,13 +10,11 @@ public class Post {
 	boolean exists;
 	boolean endorsedPost;
 
+	public boolean isExists() { return exists; }
+
 	public boolean isEndorsedPost() { return endorsedPost; }
 
 	public void setEndorsedPost(boolean endorsedPost) { this.endorsedPost = endorsedPost; }
-
-	public boolean isExists() {
-		return exists;
-	}
 
 	public void setExists(boolean exists) {
 		exists = exists;
