@@ -2,8 +2,6 @@ package socialmedia;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.IllegalFormatCodePointException;
-
 
 /**
  * BadSocialMedia is a minimally compiling, but non-functioning implementor of
@@ -39,9 +37,9 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public int createAccount(String handle) throws IllegalHandleException, InvalidHandleException {
-
-		if (handle.length() > 30 || handle.contains(" ")) {
-			throw new InvalidHandleException("Handle must be under 30 characters, cannot contain whitespace");
+		if (handle.length() > 30 || handle.contains(" ") || handle == "") {
+			throw new InvalidHandleException(
+					"Handle must be under 30 characters, cannot contain whitespace, cannot be null.");
 		}
 		if (findAccountByHandle(handle) != null) {
 			throw new IllegalHandleException("Handle already exists on the platform.");
@@ -51,6 +49,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			account.Handle = handle;
 			accounts.add(account);
 			accountId++;
+			account.setExists(true);
 
 			return account.id;
 		}
@@ -58,8 +57,9 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public int createAccount(String handle, String description) throws IllegalHandleException, InvalidHandleException {
-		if (handle.length() > 30 || handle.contains(" ")) {
-			throw new InvalidHandleException("Handle must be under 30 characters, cannot contain whitespace");
+		if (handle.length() > 30 || handle.contains(" ") || handle == "") {
+			throw new InvalidHandleException(
+					"Handle must be under 30 characters, cannot contain whitespace, cannot be null.");
 		}
 		if (findAccountByHandle(handle) != null) {
 			throw new IllegalHandleException("Handle already exists on the platform.");
@@ -67,8 +67,11 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			Account account = new Account();
 			account.id = accountId;
 			account.Handle = handle;
+			account.setExists(true);
+			account.setDescription(description);
 			accounts.add(account);
 			accountId++;
+			account.setExists(true);
 
 			return account.id;
 		}
@@ -85,11 +88,11 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public void removeAccount(String handle) throws HandleNotRecognisedException {
-		for (Post p:posts){
-			if (p.getAccount().equals(handle)){
+		for (Post p : posts) {
+			if (p.getAccount().getHandle().equals(handle)) {
 				try {
 					if (p.isEndorsedPost()) {
-						for (Post post: posts)  {
+						for (Post post : posts) {
 							if (post.getId() == p.getParentId()) {
 								post.endorsements--;
 							}
@@ -100,7 +103,6 @@ public class BadSocialMedia implements SocialMediaPlatform {
 					e.printStackTrace();
 				}
 
-
 			}
 		}
 		accounts.removeIf(account -> account.Handle == handle);
@@ -110,28 +112,39 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	@Override
 	public void changeAccountHandle(String oldHandle, String newHandle)
 			throws HandleNotRecognisedException, IllegalHandleException, InvalidHandleException {
-		try {
-			findAccountByHandle(oldHandle).Handle = newHandle;
-		} catch (Exception HandleNotRecognisedException) {
-			System.out.println("Handle not recognised.");
-			// TODO: handle exception
+		if (newHandle.length() > 30 || newHandle.contains(" ") || newHandle == "") {
+			throw new InvalidHandleException(
+					"Handle must be under 30 characters, cannot contain whitespace, cannot be null.");
 		}
-		// TODO Auto-generated method stub
+		if (findAccountByHandle(newHandle) != null) {
+			throw new IllegalHandleException("Handle already exists on the platform.");
+		} else {
+			try {
 
+				findAccountByHandle(oldHandle).Handle = newHandle;
+			} catch (Exception HandleNotRecognisedException) {
+				throw new HandleNotRecognisedException("Handle not recognised.");
+			}
+		}
 	}
 
 	@Override
 	public void updateAccountDescription(String handle, String description) throws HandleNotRecognisedException {
-		findAccountByHandle(handle).Description = description;
-		// TODO Auto-generated method stub
-
+		if (findAccountByHandle(handle) == null) {
+			throw new HandleNotRecognisedException("Handle not found in the platform.");
+		}
+		findAccountByHandle(handle).setDescription(description);
 	}
 
 	@Override
 	public String showAccount(String handle) throws HandleNotRecognisedException {
 		// return findAccountByHandle(handle); It should return a formatted sum of a
 		// user.
+		String showAccount = "";
 		Account accountToShow = findAccountByHandle(handle);
+		if (accountToShow == null) {
+			throw new HandleNotRecognisedException("Handle not found in platform.");
+		}
 		int postCount = 0;
 		int endorsementCount = 0;
 		for (Post p : posts) {
@@ -142,12 +155,12 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 		}
 		// This method should create a formatted string, doesn't have to print them
-		System.out.println("ID:" + accountToShow.getId());
-		System.out.println("Handle:" + accountToShow.getHandle());
-		System.out.println("Description:" + accountToShow.getDescription());
-		System.out.println("Post Count:" + postCount);
-		System.out.println("Endorse Count:" + endorsementCount);
-		return null;
+		showAccount = "ID:" + accountToShow.getId() + "\n" + "Handle:" + accountToShow.getHandle() + "\n"
+				+ "Description:" + accountToShow.getDescription() + "\n" + "Post Count:" + postCount + "\n"
+				+ "Endorse Count:" + endorsementCount;
+
+
+		return showAccount;
 	}
 
 	@Override
@@ -183,7 +196,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 				// I think we should add the line above, it needs all conditions to be true if
 				// it's gonna throw an exception.
 				if (p.getId() == id) {
-					if (p.account.getHandle().equals(handle) && p.parentId == id){
+					if (p.account.getHandle().equals(handle) && p.parentId == id) {
 						throw new NotActionablePostException("Can't endorse same post twice");
 
 					}
@@ -212,7 +225,6 @@ public class BadSocialMedia implements SocialMediaPlatform {
 					postId++;
 					return post.getId();
 
-
 				}
 
 			}
@@ -240,7 +252,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 					p.comments++;
 					Post post = new Post();
 					post.id = postId;
-					post.parentId =id;
+					post.parentId = id;
 					post.account = findAccountByHandle(handle);
 					post.message = message;
 					post.endorsedPost = false;
@@ -258,14 +270,14 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	@Override
 	public void deletePost(int id) throws PostIDNotRecognisedException {
 		int counter = 0;
-		for (Post p: posts){
+		for (Post p : posts) {
 			if (p.getParentId() == id) {
 				counter++;
 			}
-			if (counter == 0){
+			if (counter == 0) {
 				posts.remove(p);
 			}
-			if (p.getId() == id){
+			if (p.getId() == id) {
 
 				p.setMessage("The original content was removed from the system and is no longer available.");
 				p.setAccount(null);
@@ -273,21 +285,18 @@ public class BadSocialMedia implements SocialMediaPlatform {
 				p.setExists(false);
 			}
 
-
 		}
 		System.out.println("Post successfully deleted");
-
 
 	}
 
 	@Override
 	public String showIndividualPost(int id) throws PostIDNotRecognisedException {
-		for (Post p:posts) {
-			if (p.getId() == id){
-				String formattedString = "ID: " + p.getId() + "\n" +
-										"Account: " + p.getAccount().getHandle() + "\n" +
-										"No. endorsements: " + p.getEndorsements() + " | " + "No. comments: " + p.getComments() + "\n" +
-										p.getMessage();
+		for (Post p : posts) {
+			if (p.getId() == id) {
+				String formattedString = "ID: " + p.getId() + "\n" + "Account: " + p.getAccount().getHandle() + "\n"
+						+ "No. endorsements: " + p.getEndorsements() + " | " + "No. comments: " + p.getComments() + "\n"
+						+ p.getMessage();
 
 				return formattedString;
 
@@ -298,14 +307,13 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public StringBuilder showPostChildrenDetails(int id)
-	//Looks like the most difficult method.
+			// Looks like the most difficult method.
 			throws PostIDNotRecognisedException, NotActionablePostException {
 
 		StringBuilder sb = new StringBuilder(showIndividualPost(id));
 
-
-		for (Post p:posts){
-			if (p.getParentId() == id && !p.isEndorsedPost()){
+		for (Post p : posts) {
+			if (p.getParentId() == id && !p.isEndorsedPost()) {
 
 				String indent = showPostChildrenDetails(p.getId()).toString();
 				indent = indent.replaceAll("\n", "\n\t");
@@ -318,17 +326,26 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	}
 
 	@Override
-	public int getNumberOfAccounts() { return accounts.size(); }
+	public int getNumberOfAccounts() {
+		int numberOfAccounts = 0;
+		for (Account account : accounts) {
+			if (account.isExists()) {
+				numberOfAccounts++;
+			}
+		}
+		return numberOfAccounts;
+	}
 
 	@Override
 	public int getTotalOriginalPosts() {
 		int originalPosts = 0;
 		for (Post post : posts) {
-			if (post.endorsedPost || post.parentId > 0) {
-			} else {
-				originalPosts++;
+			if (post.isExists()) {
+				if (post.endorsedPost || post.parentId > 0) {
+				} else {
+					originalPosts++;
+				}
 			}
-
 		}
 		return originalPosts;
 
@@ -338,8 +355,10 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	public int getTotalEndorsmentPosts() {
 		int endorsementPosts = 0;
 		for (Post post : posts) {
-			if (post.endorsedPost) {
-				endorsementPosts++;
+			if (post.isExists()) {
+				if (post.endorsedPost) {
+					endorsementPosts++;
+				}
 			}
 		}
 		return endorsementPosts;
@@ -349,10 +368,11 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	public int getTotalCommentPosts() {
 		int commentPosts = 0;
 		for (Post post : posts) {
-			if (post.parentId > 0 && !post.endorsedPost) {
-				commentPosts++;
+			if (post.isExists()) {
+				if (post.parentId > 0 && !post.endorsedPost) {
+					commentPosts++;
+				}
 			}
-
 		}
 		return commentPosts;
 	}
@@ -362,8 +382,10 @@ public class BadSocialMedia implements SocialMediaPlatform {
 		Post mostEndorsedPost = new Post();
 		mostEndorsedPost.endorsements = 0;
 		for (Post post : posts) {
-			if (post.endorsements>mostEndorsedPost.endorsements) {
-				mostEndorsedPost = post;
+			if (post.isExists()) {
+				if (post.endorsements > mostEndorsedPost.endorsements) {
+					mostEndorsedPost = post;
+				}
 			}
 		}
 		return mostEndorsedPost.id;
@@ -373,11 +395,12 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	public int getMostEndorsedAccount() {
 		int mostEndorsedAccountId = 0;
 		for (Account account : accounts) {
-			if (account.endorsementCount>mostEndorsedAccountId) {
-				mostEndorsedAccountId = account.getId();
+			if (account.isExists()) {
+				if (account.endorsementCount > mostEndorsedAccountId) {
+					mostEndorsedAccountId = account.getId();
+				}
 			}
 		}
-		// TODO Auto-generated method stub
 		return mostEndorsedAccountId;
 	}
 
@@ -393,7 +416,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public void savePlatform(String filename) throws IOException {
-		if (!filename.endsWith(".ser")){
+		if (!filename.endsWith(".ser")) {
 			filename = filename.concat(".ser");
 		}
 		try {
@@ -401,32 +424,30 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(accounts);
 			oos.close();
-		} catch(IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 
 	}
 
 	@Override
 	public void loadPlatform(String filename) throws IOException, ClassNotFoundException {
-		if (!filename.endsWith(".ser")){
+		if (!filename.endsWith(".ser")) {
 			filename = filename.concat(".ser");
 		}
-		try{
+		try {
 			FileInputStream readData = new FileInputStream(filename);
 			ObjectInputStream readStream = new ObjectInputStream(readData);
 
 			ArrayList<Account> accounts1 = (ArrayList<Account>) readStream.readObject();
 			readStream.close();
-			for (Account a:accounts1){
+			for (Account a : accounts1) {
 				System.out.println(a.getHandle());
 			}
-		}catch (IOException e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
-
 
 }
