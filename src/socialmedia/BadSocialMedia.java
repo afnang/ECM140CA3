@@ -82,7 +82,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 		try {
 			accounts.remove(findAccountById(id));
 		} catch (Exception AccountIDNotRecognisedException) {
-			System.out.println("Account ID is not recognised in the system");
+			throw new AccountIDNotRecognisedException("Account ID not recognised.");
 		}
 	}
 
@@ -101,6 +101,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 					deletePost(p.getId());
 				} catch (PostIDNotRecognisedException e) {
 					e.printStackTrace();
+					throw new HandleNotRecognisedException("Handle not recognised.");
 				}
 
 			}
@@ -308,10 +309,11 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	@Override
 	public StringBuilder showPostChildrenDetails(int id)
 			// Looks like the most difficult method.
+	//TODO We didn't add exceptions to this method.
 			throws PostIDNotRecognisedException, NotActionablePostException {
 
 		StringBuilder sb = new StringBuilder(showIndividualPost(id));
-
+		
 		for (Post p : posts) {
 			if (p.getParentId() == id && !p.isEndorsedPost()) {
 
@@ -426,6 +428,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			oos.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw new IOException();
 		}
 
 	}
@@ -446,6 +449,8 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+			throw new IOException();
+
 		}
 
 	}
