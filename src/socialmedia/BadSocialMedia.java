@@ -160,7 +160,6 @@ public class BadSocialMedia implements SocialMediaPlatform {
 				+ "Description:" + accountToShow.getDescription() + "\n" + "Post Count:" + postCount + "\n"
 				+ "Endorse Count:" + endorsementCount;
 
-
 		return showAccount;
 	}
 
@@ -193,16 +192,16 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			throw new HandleNotRecognisedException("Handle not found in platform, Please try again");
 		} else {
 			for (Post p : posts) {
-				if (p.account.getHandle().equals(handle) && p.parentId == id&&p.endorsedPost) {
+				if (p.account.getHandle().equals(handle) && p.parentId == id && p.endorsedPost) {
 					throw new NotActionablePostException("Can't endorse same post twice");
-				}	
+				}
 			}
 			for (Post p : posts) {
 				// if (p.getAccount().getHandle()==handle&& p.parentId==id&&p.endorsedPost)
 				// I think we should add the line above, it needs all conditions to be true if
 				// it's gonna throw an exception.
 				if (p.getId() == id) {
-					
+
 					if (p.getParentId() != 0) {
 
 						if (p.isEndorsedPost()) {
@@ -277,19 +276,24 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			if (p.getParentId() == id) {
 				counter++;
 			}
-			if (counter == 0) {
-				posts.remove(p);
-			}
+		}
+		
+		for (Post p : posts) {
+			
 			if (p.getId() == id) {
-
+				if (counter == 0) {
+					posts.remove(p); // Causes error.
+				}
 				p.setMessage("The original content was removed from the system and is no longer available.");
-				p.setAccount(null);
-				p.setEndorsements(0);
 				p.setExists(false);
+				p.getAccount().endorsementCount = p.getAccount().endorsementCount - p.endorsements;
+				p.setEndorsements(0);
+				// p.setAccount(null);
+				return;
 			}
 
 		}
-		System.out.println("Post successfully deleted");
+		throw new PostIDNotRecognisedException("Post ID not recognised.");
 
 	}
 
@@ -300,7 +304,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 				String formattedString = "ID: " + p.getId() + "\n" + "Account: " + p.getAccount().getHandle() + "\n"
 						+ "No. endorsements: " + p.getEndorsements() + " | " + "No. comments: " + p.getComments() + "\n"
 						+ p.getMessage();
-				System.out.println("Parent ID:"+p.getParentId());
+				System.out.println("Parent ID:" + p.getParentId());
 
 				return formattedString;
 
@@ -312,11 +316,11 @@ public class BadSocialMedia implements SocialMediaPlatform {
 	@Override
 	public StringBuilder showPostChildrenDetails(int id)
 			// Looks like the most difficult method.
-	//TODO We didn't add exceptions to this method.
+			// TODO We didn't add exceptions to this method.
 			throws PostIDNotRecognisedException, NotActionablePostException {
 
 		StringBuilder sb = new StringBuilder(showIndividualPost(id));
-		
+
 		for (Post p : posts) {
 			if (p.getParentId() == id && !p.isEndorsedPost()) {
 
