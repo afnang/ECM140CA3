@@ -4,12 +4,12 @@ import java.io.*;
 import java.util.ArrayList;
 
 /**
- * BadSocialMedia is a minimally compiling, but non-functioning implementor of
+ * SocialMedia is a minimally compiling, but non-functioning implementor of
  * the SocialMediaPlatform interface.
  * @author Diogo Pacheco
  * @version 1.0
  */
-public class BadSocialMedia implements SocialMediaPlatform {
+public class SocialMedia implements SocialMediaPlatform {
 	int accountId = 1;
 	int postId = 1;
 
@@ -113,6 +113,11 @@ public class BadSocialMedia implements SocialMediaPlatform {
 		// Tries to remove account with given account ID if unsuccessful
 		// 		an exception is thrown
 		try {
+			for (Post p : posts) {
+				if (p.getAccount().id == id) {
+					deletePost(id);
+				}
+			}
 			accounts.remove(findAccountById(id));
 		} catch (Exception AccountIDNotRecognisedException) {
 			throw new AccountIDNotRecognisedException("Account ID not recognised.");
@@ -125,26 +130,22 @@ public class BadSocialMedia implements SocialMediaPlatform {
 		// Tries to remove account with given account handle if unsuccessful
 		// 		an exception is thrown
 		// TODO need to fix
+		if (findAccountByHandle(handle)==null) {
+			throw new HandleNotRecognisedException("Account handle not recognised.");
+		}
 
-		for (Post p : posts) { // Iterating through arraylist
+		for (Post p : posts) {
 			if (p.getAccount().getHandle().equals(handle)) {
 				try {
-					if (p.isEndorsedPost()) {
-						for (Post post : posts) {
-							if (post.getId() == p.getParentId()) {
-								post.endorsements--;
-							}
-						}
-					}
 					deletePost(p.getId());
 				} catch (PostIDNotRecognisedException e) {
 					e.printStackTrace();
-					throw new HandleNotRecognisedException("Handle not recognised.");
-				}
 
+				}
 			}
 		}
-		accounts.removeIf(account -> account.Handle.equals(handle));
+		accounts.remove(findAccountByHandle(handle));
+
 
 	}
 
@@ -192,7 +193,7 @@ public class BadSocialMedia implements SocialMediaPlatform {
 		Account accountToShow = findAccountByHandle(handle);
 		if (accountToShow == null) {
 			throw new HandleNotRecognisedException("Handle not found in platform."); // Thrown when an unknown handle
-																					 // 		is inputted
+			// 		is inputted
 		}
 		int postCount = 0;
 		int endorsementCount = 0;
@@ -360,8 +361,15 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			if (p.getId() == id) {
 
 				// If the counter value has not been updated, it means that the post has no comments
-				// 		so the post can be removed entirely from the system
+				if (p.isEndorsedPost()) {
+					for (Post post : posts) {
+						if (post.id==p.parentId||p.endorsedPost) {
+							post.endorsements--;
+						}
+					}
+				}// 		so the post can be removed entirely from the system
 				if (counter == 0) {
+
 					posts.remove(p);  // Remove post completely.
 				}
 
@@ -538,10 +546,15 @@ public class BadSocialMedia implements SocialMediaPlatform {
 			filename = filename.concat(".ser");
 		}
 		try {
+			ArrayList<Object> platform = new ArrayList<Object>();
+			platform.add(accounts);
+			platform.add(posts);
+
 			FileOutputStream fos = new FileOutputStream(filename);
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
-			oos.writeObject(accounts);
+			oos.writeObject(platform);
 			oos.close();
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException();
