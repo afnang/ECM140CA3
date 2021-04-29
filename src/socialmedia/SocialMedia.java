@@ -2,10 +2,12 @@ package socialmedia;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
- * SocialMedia is a minimally compiling, but non-functioning implementor of
- * the SocialMediaPlatform interface.
+ * SocialMedia is a minimally compiling, but non-functioning implementor of the
+ * SocialMediaPlatform interface.
+ *
  * @author Diogo Pacheco
  * @version 1.0
  */
@@ -15,12 +17,13 @@ public class SocialMedia implements SocialMediaPlatform {
 
 	ArrayList<Account> accounts = new ArrayList<Account>();
 	ArrayList<Post> posts = new ArrayList<Post>();
+
 	/**
-	 * The method finds an account from the arraylist of accounts. It takes in a string
-	 * called handle. The method iterates through all the objects in the arraylist, comparing
-	 * the parameter that was inputted with the value of the attribute Handle that has been stored
-	 * for each object in the arraylist. When a match is found, the Account object with the match
-	 * is returned.
+	 * The method finds an account from the arraylist of accounts. It takes in a
+	 * string called handle. The method iterates through all the objects in the
+	 * arraylist, comparing the parameter that was inputted with the value of the
+	 * attribute Handle that has been stored for each object in the arraylist. When
+	 * a match is found, the Account object with the match is returned.
 	 *
 	 * @param handle The Handle of the account, the user is searching for
 	 *
@@ -37,13 +40,14 @@ public class SocialMedia implements SocialMediaPlatform {
 	}
 
 	/**
-	 * The method finds an account from the arraylist of accounts. It takes in an ID as
-	 * a parameter and compares it with every ID attribute in the arraylist accounts to
-	 * see if there is a match. If there is, then the matching Account object is returned.
+	 * The method finds an account from the arraylist of accounts. It takes in an ID
+	 * as a parameter and compares it with every ID attribute in the arraylist
+	 * accounts to see if there is a match. If there is, then the matching Account
+	 * object is returned.
 	 *
 	 * @param id The ID of the account, the user is searching for
 	 * @throws AccountIDNotRecognisedException if the ID does not match any IDs in
-	 * 										the system.
+	 *                                         the system.
 	 */
 
 	private Account findAccountById(int id) throws AccountIDNotRecognisedException {
@@ -55,11 +59,21 @@ public class SocialMedia implements SocialMediaPlatform {
 		throw new AccountIDNotRecognisedException("ID not recognised.");
 	}
 
+	private Post findPostById(int id) throws PostIDNotRecognisedException {
+		for (Post post : posts) {
+			if (post.getId() == id) {
+				return post;
+			}
+		}
+		throw new PostIDNotRecognisedException("ID not recognised");
+	}
+
 	@Override
 	public int createAccount(String handle) throws IllegalHandleException, InvalidHandleException {
 
-		// Check if handle meets specification requirements i.e. under 30 chars, can't be null
-		// 		or have white spaces
+		// Check if handle meets specification requirements i.e. under 30 chars, can't
+		// be null
+		// or have white spaces
 		if (handle.length() > 30 || handle.contains(" ") || handle == "") {
 			throw new InvalidHandleException(
 					"Handle must be under 30 characters, cannot contain whitespace, cannot be null.");
@@ -68,7 +82,8 @@ public class SocialMedia implements SocialMediaPlatform {
 			throw new IllegalHandleException("Handle already exists on the platform.");
 		} else {
 
-			// Creates Account object and stores in arraylist accounts if all validation is successful
+			// Creates Account object and stores in arraylist accounts if all validation is
+			// successful
 			Account account = new Account();
 			account.id = accountId;
 			account.Handle = handle;
@@ -93,7 +108,8 @@ public class SocialMedia implements SocialMediaPlatform {
 			throw new IllegalHandleException("Handle already exists on the platform.");
 		} else {
 
-			// Creates Account object and stores in arraylist accounts if all validation is successful
+			// Creates Account object and stores in arraylist accounts if all validation is
+			// successful
 			Account account = new Account();
 			account.id = accountId;
 			account.Handle = handle;
@@ -111,7 +127,7 @@ public class SocialMedia implements SocialMediaPlatform {
 	public void removeAccount(int id) throws AccountIDNotRecognisedException {
 
 		// Tries to remove account with given account ID if unsuccessful
-		// 		an exception is thrown
+		// an exception is thrown
 		try {
 			for (Post p : posts) {
 				if (p.getAccount().id == id) {
@@ -126,17 +142,17 @@ public class SocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public void removeAccount(String handle) throws HandleNotRecognisedException {
-
 		// Tries to remove account with given account handle if unsuccessful
-		// 		an exception is thrown
-		// TODO need to fix
-		if (findAccountByHandle(handle)==null) {
+		// an exception is thrown
+		Iterator<Post> iter = posts.iterator();
+		if (findAccountByHandle(handle) == null) {
 			throw new HandleNotRecognisedException("Account handle not recognised.");
 		}
-
-		for (Post p : posts) {
+		while (iter.hasNext()) {
+			Post p = iter.next();
 			if (p.getAccount().getHandle().equals(handle)) {
 				try {
+
 					deletePost(p.getId());
 				} catch (PostIDNotRecognisedException e) {
 					e.printStackTrace();
@@ -145,7 +161,6 @@ public class SocialMedia implements SocialMediaPlatform {
 			}
 		}
 		accounts.remove(findAccountByHandle(handle));
-
 
 	}
 
@@ -164,8 +179,8 @@ public class SocialMedia implements SocialMediaPlatform {
 			try {
 
 				// find the Account object with oldHandle as the matching Handle attribute value
-				// 		and set the Handle attribute with the value of newHandle
-				//			throw an exception if not found
+				// and set the Handle attribute with the value of newHandle
+				// throw an exception if not found
 
 				findAccountByHandle(oldHandle).Handle = newHandle;
 			} catch (Exception HandleNotRecognisedException) {
@@ -180,8 +195,9 @@ public class SocialMedia implements SocialMediaPlatform {
 			throw new HandleNotRecognisedException("Handle not found in the platform.");
 		}
 
-		// Find account object with matching handle and change the value of its attribute description
-		// 		throw an exception if unsuccessful
+		// Find account object with matching handle and change the value of its
+		// attribute description
+		// throw an exception if unsuccessful
 		findAccountByHandle(handle).setDescription(description);
 	}
 
@@ -193,14 +209,14 @@ public class SocialMedia implements SocialMediaPlatform {
 		Account accountToShow = findAccountByHandle(handle);
 		if (accountToShow == null) {
 			throw new HandleNotRecognisedException("Handle not found in platform."); // Thrown when an unknown handle
-			// 		is inputted
+			// is inputted
 		}
 		int postCount = 0;
 		int endorsementCount = 0;
 		for (Post p : posts) { // Iterate through the arraylist posts
 
 			// Comparing currently iterated object's Account attribute with searched Account
-			// 		If true then the endorsement and post counts are updated
+			// If true then the endorsement and post counts are updated
 			if (p.getAccount().equals(accountToShow)) {
 				postCount++;
 				endorsementCount = p.getEndorsements() + endorsementCount;
@@ -228,7 +244,8 @@ public class SocialMedia implements SocialMediaPlatform {
 			throw new InvalidPostException("Message was greater than 100 characters or empty");
 		} else {
 
-			// New Post Object created and stored in arraylist posts if validation successful
+			// New Post Object created and stored in arraylist posts if validation
+			// successful
 			Post post = new Post();
 			post.id = postId;
 			post.account = findAccountByHandle(handle);
@@ -261,7 +278,7 @@ public class SocialMedia implements SocialMediaPlatform {
 					if (p.getParentId() != 0) {
 
 						// Exceptions thrown when user tries to endorse an endorsed post
-						// 		or a comment
+						// or a comment
 						if (p.isEndorsedPost()) {
 							throw new NotActionablePostException("Can't endorse another endorsed post");
 						}
@@ -273,9 +290,10 @@ public class SocialMedia implements SocialMediaPlatform {
 						throw new NotActionablePostException("Post has been deleted, cannot comment");
 					}
 
-					// Creates a new Post object and stores it in arraylist posts to store the endorsement when no exceptions are thrown
-					// 		Unlike normal Post objects, endorsed posts have the attribute endorsedPost
-					//			set to true to differentiate them from original posts
+					// Creates a new Post object and stores it in arraylist posts to store the
+					// endorsement when no exceptions are thrown
+					// Unlike normal Post objects, endorsed posts have the attribute endorsedPost
+					// set to true to differentiate them from original posts
 					String endorsedPost = "EP@" + p.account.getHandle() + ": " + p.getMessage();
 					Post post = new Post();
 					post.id = postId;
@@ -314,7 +332,7 @@ public class SocialMedia implements SocialMediaPlatform {
 				if (p.getId() == id) {
 
 					// Exceptions thrown if user tries to comment on an endorsed post
-					// 		or a deleted post
+					// or a deleted post
 					if (p.isEndorsedPost()) {
 						throw new NotActionablePostException("Can't comment on an endorsed post");
 					}
@@ -323,9 +341,11 @@ public class SocialMedia implements SocialMediaPlatform {
 					}
 
 					// New Post Object created and stored in arraylist posts if no exceptions thrown
-					// 		with the parentId attribute set to id as both endorsed posts and original posts
-					// 			have null parentId attributes, so that it is possible to differentiate between the
-					// 				different type of posts.
+					// with the parentId attribute set to id as both endorsed posts and original
+					// posts
+					// have null parentId attributes, so that it is possible to differentiate
+					// between the
+					// different type of posts.
 					p.comments++;
 					Post post = new Post();
 					post.id = postId;
@@ -348,29 +368,44 @@ public class SocialMedia implements SocialMediaPlatform {
 
 	@Override
 	public void deletePost(int id) throws PostIDNotRecognisedException {
+		Iterator<Post> iter2 = posts.iterator();
 
 		// Initialisation
-		int counter = 0;
-		for (Post p : posts) { // Iterating through posts
-			if (p.getParentId() == id) {
-				counter++;
-			}
-		}
-		for (Post p : posts) { // Iterating through posts
+		int commentCounter = 0;
 
+		for (Post i : posts) {
+
+			// Iterating through posts
+			if (i.getParentId() == id && !i.isEndorsedPost()) {
+				commentCounter++;
+			}
+			if (i.getParentId() == id && i.isEndorsedPost()) {
+				// TODO ERROR CAUSE
+				// posts.remove(i);
+				i.setMessage("-This was an endorsement but the original post has been deleted.-");
+			}
+
+		}
+		while (iter2.hasNext()) { // Iterating through posts
+			Post p = iter2.next();
 			if (p.getId() == id) {
 
-				// If the counter value has not been updated, it means that the post has no comments
+				// If the counter value has not been updated, it means that the post has no
+				// comments
 				if (p.isEndorsedPost()) {
 					for (Post post : posts) {
-						if (post.id==p.parentId||p.endorsedPost) {
+						if ((post.id == p.parentId && p.endorsedPost)) {
 							post.endorsements--;
+							post.account.endorsementCount--;
 						}
 					}
-				}// 		so the post can be removed entirely from the system
-				if (counter == 0) {
-
-					posts.remove(p);  // Remove post completely.
+				} // so the post can be removed entirely from the system
+				if (commentCounter == 0) {
+					// We were supposed to remove the post completely but after struggling with
+					// ConcurrentModificationException for days, we decided to only change the
+					// message.
+					//posts.remove(p); // Remove post completely.
+					p.setExists(false);
 				}
 
 				// Placeholder message set instead if post has comment posts
@@ -378,7 +413,7 @@ public class SocialMedia implements SocialMediaPlatform {
 				p.setExists(false);
 
 				// Update user total endorsements as this post doesn't exist anymore
-				// 		So it should not contribute to user's total endorsements
+				// So it should not contribute to user's total endorsements
 				p.getAccount().endorsementCount = p.getAccount().endorsementCount - p.endorsements;
 				p.setEndorsements(0); // Update value of post endorsements to 0 as it doesn't exist now
 				return;
@@ -393,12 +428,23 @@ public class SocialMedia implements SocialMediaPlatform {
 	@Override
 	public String showIndividualPost(int id) throws PostIDNotRecognisedException {
 		for (Post p : posts) { // Iterates through posts
-			// returns a formatted string if currently iterated object has the same id value as the parameter
+			// returns a formatted string if currently iterated object has the same id value
+			// as the parameter
 			if (p.getId() == id) {
-				String formattedString = "ID: " + p.getId() + "\n" + "Account: " + p.getAccount().getHandle() + "\n"
-						+ "No. endorsements: " + p.getEndorsements() + " | " + "No. comments: " + p.getComments() + "\n"
-						+ p.getMessage();
-				return formattedString;
+				if (!p.isExists()) {
+					String formattedString = "ID: " + " " + "\n" + "Account: " + " " + "\n"
+							+ "No. endorsements: " + p.getEndorsements() + " | " + "No. comments: " + p.getComments() + "\n"
+							+ "Content deleted.";
+					return formattedString;
+
+				}
+				else {
+					String formattedString = "ID: " + p.getId() + "\n" + "Account: " + p.getAccount().getHandle() + "\n"
+							+ "No. endorsements: " + p.getEndorsements() + " | " + "No. comments: " + p.getComments()
+							+ "\n" + p.getMessage();
+					return formattedString;
+
+				}
 
 			}
 		}
@@ -406,6 +452,7 @@ public class SocialMedia implements SocialMediaPlatform {
 		// Exception thrown if Post ID not found in system
 		throw new PostIDNotRecognisedException("Post ID not found in the platform");
 	}
+
 	@Override
 	public StringBuilder showPostChildrenDetails(int id)
 			throws PostIDNotRecognisedException, NotActionablePostException {
@@ -420,15 +467,17 @@ public class SocialMedia implements SocialMediaPlatform {
 
 		for (Post p : posts) {
 
-			// Exception thrown when an endorsed post is selected as endorsed posts cannot have
-			// 		comments or endorsements
-			if (p.getParentId() == id && p.isEndorsedPost()) {
+			// Exception thrown when an endorsed post is selected as endorsed posts cannot
+			// have
+			// comments or endorsements
+			if (p.getId() == id && p.isEndorsedPost()) {
 				throw new NotActionablePostException("Endorsed posts cannot have comments");
 			}
 
 			if (p.getParentId() == id && !p.isEndorsedPost()) { // Checks if parent object had any comments
 
-				// Converting object to string to allow for string manipulation for formatting purposes
+				// Converting object to string to allow for string manipulation for formatting
+				// purposes
 				String indent = showPostChildrenDetails(p.getId()).toString();
 				indent = indent.replaceAll("\n", "\n\t");
 				sb.append("\n|");
@@ -456,9 +505,9 @@ public class SocialMedia implements SocialMediaPlatform {
 		for (Post post : posts) { // Iterating through posts
 			if (post.isExists()) {
 				if (post.endorsedPost || post.parentId > 0) {
+					continue;
 					// Validating it is not an endorsed post or a comment post
-				}
-				else {
+				} else {
 					originalPosts++; // Increments counter if conditions met
 				}
 			}
@@ -499,10 +548,10 @@ public class SocialMedia implements SocialMediaPlatform {
 		mostEndorsedPost.endorsements = 0;
 		for (Post post : posts) { // Iterate through posts
 			if (post.isExists()) { // Check if post still exists
-
-				// Compare mostEndorsedPost's endorsement attribute with currently iterated Post's endorsements
-				// 		attribute
-				//		If greater update mostEndorsedPost to be the currently iterated Post object
+				// Compare mostEndorsedPost's endorsement attribute with currently iterated
+				// Post's endorsements
+				// attribute
+				// If greater update mostEndorsedPost to be the currently iterated Post object
 				if (post.endorsements > mostEndorsedPost.endorsements) {
 					mostEndorsedPost = post;
 				}
@@ -518,8 +567,8 @@ public class SocialMedia implements SocialMediaPlatform {
 			if (account.isExists()) { // Check if account still exists
 
 				// Compare endorsement counts of all existing Account objects in accounts
-				//		Keep updating mostEndorsedAccountId to store the id of the object with
-				// 			the highest value for the attribute endorsementCount
+				// Keep updating mostEndorsedAccountId to store the id of the object with
+				// the highest value for the attribute endorsementCount
 				if (account.endorsementCount > mostEndorsedAccountId) {
 					mostEndorsedAccountId = account.getId();
 				}
@@ -537,19 +586,21 @@ public class SocialMedia implements SocialMediaPlatform {
 		accounts.clear();
 		posts.clear();
 
-
 	}
 
 	@Override
 	public void savePlatform(String filename) throws IOException {
 		if (!filename.endsWith(".ser")) {
-			filename = filename.concat(".ser");
+			filename = filename.concat(".ser"); // Ensures files are of a .ser format
 		}
 		try {
+
+			// Creating new arraylist called platform and adding posts and accounts to it
 			ArrayList<Object> platform = new ArrayList<Object>();
 			platform.add(accounts);
 			platform.add(posts);
 
+			// Writing platform to a file
 			FileOutputStream fos = new FileOutputStream(filename);
 			ObjectOutputStream oos = new ObjectOutputStream(fos);
 			oos.writeObject(platform);
@@ -562,24 +613,33 @@ public class SocialMedia implements SocialMediaPlatform {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void loadPlatform(String filename) throws IOException, ClassNotFoundException {
 		if (!filename.endsWith(".ser")) {
-			filename = filename.concat(".ser");
+			filename = filename.concat(".ser"); // Ensures files are of a .ser format
 		}
 		try {
+
+			// Reading data from file
 			FileInputStream readData = new FileInputStream(filename);
 			ObjectInputStream readStream = new ObjectInputStream(readData);
 
-			ArrayList<Account> accounts1 = (ArrayList<Account>) readStream.readObject();
+			// Data that was read is stored in an object arraylist called platform
+			ArrayList<Object> platform = (ArrayList<Object>) readStream.readObject();
 			readStream.close();
-			for (Account a : accounts1) {
-				System.out.println(a.getHandle());
-			}
+
+			// Elements of platform stored as "sub-arraylists" accounts and posts
+			accounts = (ArrayList<Account>) platform.get(0);
+			posts = (ArrayList<Post>) platform.get(1);
+
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new IOException();
 
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			throw new ClassNotFoundException();
 		}
 
 	}

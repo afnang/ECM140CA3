@@ -74,11 +74,18 @@ public class SocialMediaPlatformTestApp {
 			platform.commentPost("zlatan", 7, ":D"); //id 16
 			System.out.println(platform.showIndividualPost(16));
 			platform.commentPost("maldini", 16, "He yarram.");
-			platform.deletePost(16);
+
+			platform.deletePost(11);
+
+
+
+
 			System.out.println(platform.showIndividualPost(16));
 			System.out.println("No. Comments:" + platform.getTotalCommentPosts());
 			System.out.println("No. Endorsements:" + platform.getTotalEndorsmentPosts());
 			System.out.println("No. Original posts:" + platform.getTotalOriginalPosts());
+			System.out.println(platform.showPostChildrenDetails(1));
+			platform.removeAccount("kaka");
 
 			platform.changeAccountHandle("pirlo", "tirlo");
 			// System.out.println(platform.showPostChildrenDetails(1));
@@ -86,6 +93,8 @@ public class SocialMediaPlatformTestApp {
 			// System.out.println(platform.showPostChildrenDetails(7));
 			System.out.println("TestApp worked fine,");
 			platform.savePlatform("user");
+			platform.loadPlatform("user");
+			platform.erasePlatform();
 		} catch (IllegalHandleException e) {
 			e.printStackTrace();
 			// assert (false) : "IllegalHandleException thrown incorrectly";
@@ -106,6 +115,8 @@ public class SocialMediaPlatformTestApp {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} finally {
 			System.out.println("Finally here.");
